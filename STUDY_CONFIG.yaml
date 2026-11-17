@@ -1,0 +1,44 @@
+machine:
+  concurrency: 16          # solves in flight; null = sized from max_ram_gb / per_run_ram_gb
+  per_run_cpus: 2          # CPUs per solve container
+  per_run_ram_gb: 3        # memory cap per solve container, GB
+  max_ram_gb: 48           # GB available to the Docker VM
+  max_cpus: 32             # logical CPUs available to the Docker VM
+  shard: null              # e.g. "1/3"
+  range: null              # e.g. "0-4000"
+  run_retries: 2           # retries after a transient container error
+
+protocol:
+  lv_peak_mmhg: 30.0       # LV pressure at peak load, mmHg
+  rv_peak_mmhg: 10.0       # RV pressure at peak load, mmHg
+  n_steps: 20              # load steps from zero to peak
+  loading: linear          # both chambers ramp proportionally
+  rv_peaks_mmhg: [3.75, 7.5, 10.0, 15.0, 30.0]   # RV peaks of the pressure-ratio arm
+  dpdt_ratios: [0.5, 1.0, 2.0, 4.0]              # (dP_LV/dt)/(dP_RV/dt) of the rate arm
+
+material:
+  model: ho                # reduced Holzapfel-Ogden, fibre term active in tension only
+  a: 0.10                  # isotropic term, kPa
+  b: 8.023                 # isotropic exponent
+  af_reference: 20.0       # fibre term, kPa
+  bf_reference: 10.0       # fibre exponent
+  endo_deg: 60.0           # helix angle at the endocardium, degrees
+  epi_deg: -60.0           # helix angle at the epicardium, degrees
+  sweep:
+    af_kpa: [8.0, 50.0]
+    bf: [6.0, 16.0]
+    endo_deg: [45.0, 75.0]
+    epi_deg: [-75.0, -45.0]
+  formulation: compressible
+  kappa_mpa: 0.003         # bulk penalty, MPa
+
+cohort:
+  n_base: 20               # base geometries in mesh/mesh_files
+  sampling: nested         # geometries first, then material across them
+  variants_per_parent: 20  # variants generated per base geometry
+  n_synthetic: null        # null = n_base * variants_per_parent
+  geometry:
+    f_lv: [0.70, 1.35]     # LV endocardial scale factor
+    f_rv: [0.70, 1.35]     # RV endocardial scale factor
+    shift: [-0.15, 0.15]   # translation along the line joining the cavity centres
+  realism_screen: true     # reject implausible generated geometries

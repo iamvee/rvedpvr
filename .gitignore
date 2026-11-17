@@ -1,0 +1,4 @@
+.jitcache/
+__pycache__/
+*.log
+results/INDEX.md
